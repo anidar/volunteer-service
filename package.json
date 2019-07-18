@@ -1,0 +1,25 @@
+{
+  "name": "volunteer-service",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./index.js",
+    "check-code": "node node_modules/eslint/bin/eslint.js modules app.js"
+  },
+  "dependencies": {
+    "async": "^3.1.0",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "env2": "^2.2.2",
+    "eslint": "^6.0.1",
+    "eslint-config-laxarjs": "^2.0.0",
+    "express": "~4.16.1",
+    "http": "0.0.0",
+    "http-errors": "~1.6.3",
+    "log4js": "^4.5.0",
+    "morgan": "~1.9.1",
+    "oracledb": "^3.1.2",
+    "random": "^2.1.1"
+  }
+}
