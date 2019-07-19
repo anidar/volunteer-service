@@ -2,7 +2,7 @@
 
 const modulePaths = [
    './user',
-   './propose'
+   './propose',
 ];
 
 module.exports = modulePaths.map(modulePath => require(modulePath));

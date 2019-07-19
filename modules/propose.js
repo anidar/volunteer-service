@@ -44,7 +44,7 @@ async function updatePreviousReviewers(reviewers, logger){
          await runSQL(`INSERT INTO LastReviewers VALUES ('${reviewers[key]}')`, logger));
 }
 
-async function calculateUsers(allUsers, logger){
+async function calculateUsers(allUsers, logger){ //allUsers=body.users - object
    const results = (await runSQL('SELECT * FROM LastReviewers', logger))[0].message;
    const metaData = results.metaData;
    const previousReviewers = results.rows.map( row => convertRowToUser( metaData, row ))
@@ -66,7 +66,7 @@ async function calculateUsers(allUsers, logger){
    }
 }
 
-function getRequiredReviewerNumbers( users ) {
+function getRequiredReviewerNumbers(users) {
    const numberOfPotentialBackEndReviewers = users.filter( user => user.backend === 'Y' ).length;
    const numberOfPotentialFrontEndReviewers = users.filter( user => user.frontend === 'Y' ).length;
    return {
