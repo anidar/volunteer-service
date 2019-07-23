@@ -9,6 +9,8 @@ module.exports = setup;
 
 function setup(app, logger) {
    logger.debug(' Setting up /user endpoint');
+
+
    app.get('/api/user', async (req, res)=>{
       const user = await getUser( logger );
       logger.debug(user);

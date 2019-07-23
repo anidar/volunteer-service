@@ -26,8 +26,8 @@ function setup(app, logger) {
          .every(number => number === 0);
 
       if(hasEnoughReviewers){
-         const users = await calculateUsers(body.users, logger);
-         const reviewers = pickReviewers(users);
+
+         const reviewers = await pickReviewers(body.users, logger);
          await updatePreviousReviewers(reviewers, logger);
          res.json(reviewers);
       } else {
@@ -40,6 +40,7 @@ function setup(app, logger) {
 async function updatePreviousReviewers(reviewers, logger){
    await runSQL('DELETE FROM LastReviewers', logger);
    Object.keys(reviewers)
+      .filter(key => key!=='fallbackReviewer')
       .forEach(async key =>
          await runSQL(`INSERT INTO LastReviewers VALUES ('${reviewers[key]}')`, logger));
 }
@@ -76,16 +77,18 @@ function getRequiredReviewerNumbers(users) {
 }
 
 
-function pickReviewers( users ) {
+async function pickReviewers( users, logger ) {
 
+   const filteredUsers = await calculateUsers(users, logger);
    const reviewer = {};
    const pickFunctions = [ pickBackEndReviewer, pickFrontEndReviewer ];
    while ( pickFunctions.length ) {
       const currentFunctionIndex = random.int( 0, pickFunctions.length - 1 );
-      const currentPick = pickFunctions.splice( currentFunctionIndex, 1 )[ 0 ]( users );
+      const currentPick = pickFunctions.splice( currentFunctionIndex, 1 )[ 0 ]( filteredUsers );
       reviewer[ currentPick.role ] = currentPick.user;
    }
-   const fallbackPick = pickFallBackReviewer(users);
+   const possibleFallbackReviewers = users.filter(user => !Object.keys(reviewer).map(_ => reviewer[_]).includes(user));
+   const fallbackPick = pickFallBackReviewer(possibleFallbackReviewers);
    reviewer[fallbackPick.role] = fallbackPick.user;
    Object.keys(reviewer).forEach(key => reviewer[key] = reviewer[key].name);
    return reviewer;
