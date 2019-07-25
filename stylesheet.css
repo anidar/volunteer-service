@@ -1,0 +1,17 @@
+
+.div.buttons {
+    clear: left;
+    position: relative;
+    top: 0;
+    right: 0;
+    height: 10%;
+    width: 90%;
+    max-width: 90%;
+}
+
+.button {
+    clear: left;
+    position: absolute;
+    right: 0;
+    top: 20%;
+}

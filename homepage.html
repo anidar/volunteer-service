@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Volunteer-Service App</title>
+
+   <style>
+      table, td {
+         border: 1px solid black;
+         text-align: center;
+         border-collapse: collapse;
+      }
+   </style>
+
+</head>
+<body>
+   <h1 id="id1">Welcome to the Volunteer-Service App!</h1>
+   <button type="button"
+           onclick=loadReviewers()> Click the button to show the current volunteers availability</button>
+   <br><br>
+   <p id="demo"></p>
+
+   <table id="myTable">
+   </table>
+
+
+   <script>
+
+      let volunteers = {};
+      const tableCells = [0, 1, 2];
+
+      function loadReviewers() {
+         const xhttp = new XMLHttpRequest();
+         xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+               volunteers = JSON.parse(this.responseText);
+               document.getElementById("demo").innerHTML = this.responseText;
+               createTable();
+            }
+         };
+         xhttp.open("GET", "http://localhost:3000/api/user", true);
+         xhttp.send();
+      }
+
+      function createTable() {
+         const table = document.getElementById("myTable");
+         const header = table.createTHead();
+         const row = header.insertRow(0);
+         const cell1 = row.insertCell(0);
+         const cell2 = row.insertCell(1);
+         const cell3 = row.insertCell(2);
+
+         cell1.innerHTML = "<b>Initials</b>";
+         cell2.innerHTML = "<b>Backend Availability</b>";
+         cell3.innerHTML = "<b>Frontend Availability</b>";
+         //cell4.innerHTML = "<b>"+volunteers.users[0].name+"</b>";
+         volunteers.users.forEach(fillVolunteerTable);
+      }
+
+
+      function fillVolunteerTable(volunteer, index, array) {
+         const volunteerTable = document.getElementById('myTable');
+         const row = volunteerTable.insertRow(index+1);
+         const cellElements = tableCells.map( index => row.insertCell( index ) );
+         cellElements[ 0 ].appendChild( document.createTextNode( array[ index ].name ) );
+         cellElements[ 1 ].appendChild( document.createTextNode( array[ index ].backend ) );
+         cellElements[ 2 ].appendChild( document.createTextNode( array[ index ].frontend ) );
+
+      }
+
+   </script>
+</body>
+</html>
+
