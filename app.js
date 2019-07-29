@@ -7,6 +7,7 @@ const path = require( 'path' );
  * @param {Function} logger log4j logger
  * @return {*|Function} express application
  */
+
 function createApp( logger ) {
 
    const app = express();
@@ -27,6 +28,12 @@ function createApp( logger ) {
          'stack': err.stack
       } );
    } );
+
+   app.get( '/', function( req, res ) {
+      res.sendFile(path.join( __dirname + '/homepage.html') );
+      console.log( 'loading homepage...');
+   } );
+
    return app;
 }
 
