@@ -34,6 +34,12 @@ function createApp( logger ) {
       console.log( 'loading homepage...');
    } );
 
+   app.get( '/css', function( req, res ) {
+      res.sendFile(path.join( __dirname + '/stylesheet.css') );
+      console.log( 'loading homepage...');
+   } );
+
+
    return app;
 }
 

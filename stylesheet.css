@@ -1,17 +1,24 @@
 
-.div.buttons {
-    clear: left;
-    position: relative;
-    top: 0;
-    right: 0;
-    height: 10%;
-    width: 90%;
-    max-width: 90%;
+table, td {
+    border: 1.5px solid black;
+    text-align: center;
+    border-collapse: collapse;
+    background-color: beige;
 }
 
-.button {
-    clear: left;
-    position: absolute;
-    right: 0;
-    top: 20%;
+
+body {
+    background-color: lightgray;
 }
+
+h1 {
+    color: darkslategray;
+}
+
+h6 {
+    font-weight: 900;
+    text-align: left;
+    font-size: 15px;
+    font-family: "Times New Roman";
+}
+

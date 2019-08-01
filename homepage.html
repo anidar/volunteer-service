@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+   <link rel="stylesheet" href="http://localhost:3000/css">
+
    <meta charset="UTF-8">
    <title>Volunteer-Service App</title>
-
-   <style>
-      table, td {
-         border: 1px solid black;
-         text-align: center;
-         border-collapse: collapse;
-      }
-   </style>
 
 </head>
 <body>
    <h1 id="id1">Welcome to the Volunteer-Service App!</h1>
+
    <button type="button"
            onclick=loadReviewersWithTable()> Click the button to show the current volunteers availability</button>
    <br><br>
@@ -32,6 +28,9 @@
 
    <h6> Add Backend Volunteer: </h6>
    <input type="text" name="name" id='backendName'>
+
+
+
    <button type="button"
            onclick=submitReviewer(document.getElementById('backendName').value,'Y','N')> Submit </button>
    <br><br>
@@ -40,11 +39,44 @@
            onclick=loadReviewers()> Click the button to pick up reviewers</button>
    <br><br>
 
+   <button type="button"
+           onclick=showLastReviewers()> Click the button to show the last picked reviewers</button>
+   <br><br>
+
+   <table id="myLastReviewersTable">
+   </table>
+
    <script>
 
       let volunteers = {};
       let pickedVolunteers = {};
-      const tableCells = [0, 1, 2];
+      let lastReviewers = {};
+      const tableCells = [0, 1, 2, 3];
+
+      function showLastReviewers(  ) {
+         const xhttp = new XMLHttpRequest();
+         xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+               lastReviewers = JSON.parse(this.responseText);
+               createLastReviewersTable();
+            }
+         };
+         xhttp.open("GET", window.location.href + "api/lastReviewers", true);
+         xhttp.send();
+      }
+
+      function createLastReviewersTable(  ) {
+         const table = document.getElementById("myLastReviewersTable");
+         const header = table.createTHead();
+         const row = header.insertRow(0);
+         const row2 = table.insertRow(1);
+         row.innerHTML = "<b>Last Backend Reviewer</b>";
+         row2.innerHTML = "<b>Last Frontend Reviewer</b>";
+         const cell1 = row.insertCell(0);
+         cell1.innerHTML = lastReviewers.lastReviewers[0].name;
+         const cell2 = row2.insertCell(0);
+         cell2.innerHTML = lastReviewers.lastReviewers[1].name;
+      }
 
 
       function loadReviewersWithTable() {
@@ -55,7 +87,7 @@
                createTable();
             }
          };
-         xhttp.open("GET", "http://localhost:3000/api/user", true);
+         xhttp.open("GET", window.location.href + "api/user", true);
          xhttp.send();
       }
 
@@ -67,41 +99,105 @@
          const cell1 = row.insertCell(0);
          const cell2 = row.insertCell(1);
          const cell3 = row.insertCell(2);
+         const cell4 = row.insertCell(3);
+
          cell1.innerHTML = "<b>Frontend Volunteers</b>";
          cell2.innerHTML = "<b>Backend Volunteers</b>";
+         cell4.innerHTML = "<b>Current Availability</b>";
+
          //cell4.innerHTML = "<b>"+volunteers.users[0].name+"</b>";
          volunteers.users.forEach(fillVolunteerTable);
       }
 
+      //fillVolunteerTable - buttons to be fixed, at the moment all of the data is deleted when the table is crated but not when a single button is clicked
+      //button.onclick = removeFrontendReviewer(array[index].name);
 
       function fillVolunteerTable(volunteer, index, array) {
          const volunteerTable = document.getElementById('myTable');
          const row = volunteerTable.insertRow(index+1);
          const cellElements = tableCells.map( index => row.insertCell( index ) );
+
          if(array[index].frontend === 'Y'){
             cellElements[ 0 ].appendChild( document.createTextNode( array[ index ].name ) );
-            var button = addRemoveButton();
-            cellElements[2].appendChild(button);
+            console.log(cellElements[2]);
+            addRemoveButton(( ) => removeFrontendReviewer(array[index].name), cellElements[2]);
+            //button.onclick = ( ) => removeFrontendReviewer(array[index].name);
+            //cellElements[2].appendChild(button);
+
+
          }
+
          if(array[index].backend === 'Y'){
             cellElements[ 1 ].appendChild( document.createTextNode( array[ index ].name ) );
-            var button = addRemoveButton();
-            cellElements[2].appendChild(button);
+            if(array[index].frontend !== 'Y') { //check if there is a remove button already
+               addRemoveButton(( ) => removeBackendReviewer(array[index].name), cellElements[2]);
+
+            }
          }
+
+         const toggleFunction = ()=>{console.log('toggle') };
+         addAvailabilityButton(toggleFunction, cellElements[3]);
+
          if((array[index].frontend === 'N') && (array[index].backend === 'N')){
             row.deleteCell(index);
          }
       }
 
-      function addRemoveButton(  ) {
-         var button = document.createElement("BUTTON");
+      function addRemoveButton( removeFunction, cell ) {
+         const button = document.createElement("BUTTON");
          button.setAttribute('id', 'deleteButton');
          const deleteButtonText = document.createTextNode( 'remove' );
          button.appendChild(deleteButtonText);
-         return button;
+         cell.appendChild(button);
+         button.onclick = removeFunction;
       }
 
+      function addAvailabilityButton( toggleFunction, cell) {
+         const button = document.createElement("BUTTON");
+         button.setAttribute('id', 'availabilityButton');
+         const availabilityButtonText = document.createTextNode( 'toggle' );
+         button.appendChild(availabilityButtonText);
+         cell.appendChild(button);
+         button.onclick = toggleFunction;
+      }
+
+      //funktioniert
+      function removeFrontendReviewer( name ){
+         const http = new XMLHttpRequest();
+         let params = '{"users":[{"name":"'+ name +'","backend":"' + 'N' +'","frontend":"' + 'Y' +'"}]}';
+         http.open("DELETE", window.location.href + "api/user/delete", true);
+         http.setRequestHeader('Content-type', 'application/json');
+
+         http.onreadystatechange = function() {//Call a function when the state changes.
+            if(this.readyState === 4 && this.status === 200) {
+                  alert(name + " was deleted");
+                  location.replace(window.location.href);
+            }
+         };
+         http.send(params);
+      }
+
+      function removeBackendReviewer( name ){
+         const http = new XMLHttpRequest();
+         let params = '{"users":[{"name":"'+ name +'","backend":"' + 'Y' +'","frontend":"' + 'N' +'"}]}';
+         http.open("DELETE", window.location.href + "api/user/delete", true);
+         http.setRequestHeader('Content-type', 'application/json');
+
+         http.onreadystatechange = function() {//Call a function when the state changes.
+            if(this.readyState === 4 && this.status === 200) {
+               alert(name + " was deleted");
+               location.replace(window.location.href);
+            }
+         };
+         http.send(params);
+      }
+
+
       function submitReviewer( name, backendValue, frontendValue ){
+
+         if(!name){
+            return;
+         }
 
          let flag = false;
          if(backendValue ==='Y'){
@@ -109,18 +205,29 @@
          }
 
          const http = new XMLHttpRequest();
-         let params = '{"users":[{"name":"'+ name +'","backend":"' + backendValue +'","frontend":"' + frontendValue +'"}]}';
-         http.open("POST", "http://localhost:3000/api/user", true);
+         let params = {
+            "users": [
+               {
+                  name,
+                  "backend": backendValue,
+                  "frontend": frontendValue
+               }
+            ]
+         };
+         params = JSON.stringify(params);
+
+         //'{"users":[{"name":"'+ name +'","backend":"' + backendValue +'","frontend":"' + frontendValue +'"}]}';
+         http.open("POST", window.location.href + "api/user", true);
          http.setRequestHeader('Content-type', 'application/json');
 
          http.onreadystatechange = function() {//Call a function when the state changes.
             if(this.readyState === 4 && this.status === 200) {
                if(flag === true){
                   alert(name + " was added as a Backend Reviewer");
-                  window.open("http://localhost:3000/");
+                  location.replace(window.location.href);
                } else {
                   alert(name + " was added as a Frontend Reviewer");
-                  window.open("http://localhost:3000/");
+                  location.replace(window.location.href);
                }
             }
          }
@@ -136,25 +243,14 @@
                loadPickedReviewers();
             }
          };
-         xhttp.open("GET", "http://localhost:3000/api/user", true);
+         xhttp.open("GET", window.location.href +"api/user", true);
          xhttp.send();
       }
 
       function loadPickedReviewers(  ) {
          const http = new XMLHttpRequest();
-         //loadReviewers();
-         let params = '{"users":[';
-         for(let i=0; i<volunteers.users.length; i++){
-            params += '{"name":"' + volunteers.users[i].name+'","backend":"'+volunteers.users[i].backend+'","frontend":"'+volunteers.users[i].frontend+'"}';
-            if(i!==(volunteers.users.length-1)){
-               params += ',';
-            }
-         }
-         params += ']}';
-
-         //var params = '{"users":[{"name":"'+volunteers.users[0].name+'","backend":"'+volunteers.users[0].backend+'","frontend":"'+volunteers.users[0].frontend+'"},' + '{"name":"'+volunteers.users[1].name+'","backend":"'+volunteers.users[1].backend+'","frontend":"'+volunteers.users[1].frontend+'"},'+ '{"name":"'+volunteers.users[2].name+'","backend":"'+volunteers.users[2].backend+'","frontend":"'+volunteers.users[2].frontend+'"}]}';
-         //var params = '{"users":[{"name":"RAN","backend":"Y","frontend":"N"},{"name":"FJA","backend":"N","frontend":"Y"},{"name":"AST","backend":"Y","frontend":"Y"},{"name":"RST","backend":"N","frontend":"Y"},{"name":"MNA","backend":"N","frontend":"Y"},{"name":"MMI","backend":"Y","frontend":"Y"},{"name":"KYA","backend":"N","frontend":"Y"},{"name":"TSA","backend":"Y","frontend":"N"}]}';
-         http.open("POST", "http://localhost:3000/api/propose", true);
+         const params = JSON.stringify(volunteers);
+         http.open("POST", window.location.href + "api/propose", true);
          http.setRequestHeader('Content-type', 'application/json');
 
          http.onreadystatechange = function() {//Call a function when the state changes.
@@ -163,11 +259,13 @@
                alert(pickedVolunteers.frontendReviewer + " is proposed as Frontend Reviewer\n"
                   + pickedVolunteers.backendReviewer +" is proposed as Backend Reviewer\n"
                   + pickedVolunteers.fallbackReviewer + " is proposed as Fallback Reviewer\n");
+            } else if (this.status === 400){
+               alert("Not enough reviewers to be picked from!");
+               location.replace(window.location.href);
             }
-         }
+         };
          http.send(params);
       }
-
 
    </script>
 </body>

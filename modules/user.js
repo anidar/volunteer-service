@@ -17,6 +17,11 @@ function setup(app, logger) {
       res.send(user);
    });
 
+   app.get('/api/lastReviewers', async (req, res)=> {
+      const lastReviewers = await getLastReviewers(logger);
+      res.send(lastReviewers);
+   });
+
    app.delete('/api/user/delete', bodyParser.json(), async (req, res) => {
       logger.error('test3');
       const body = req.body;
@@ -76,5 +81,13 @@ async function getUser(logger) {
    return {
       'users': results.rows.map( row => convertRowToUser( metaData, row ) )
    };
+}
+
+async function getLastReviewers( logger  ) {
+   const results = (await runSql('SELECT * FROM LastReviewers', logger))[0].message;
+   const metaData = results.metaData;
+   return {
+      'lastReviewers' : results.rows.map(row => convertRowToUser(metaData, row))
+   }
 }
 
