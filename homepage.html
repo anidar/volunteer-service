@@ -3,16 +3,23 @@
 <head>
 
    <link rel="stylesheet" href="http://localhost:3000/css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
    <meta charset="UTF-8">
    <title>Volunteer-Service App</title>
 
 </head>
 <body>
+
+<i class='fa fa-user-minus'></i>
+
    <h1 id="id1">Welcome to the Volunteer-Service App!</h1>
 
    <button type="button"
            onclick=loadReviewersWithTable()> Click the button to show the current volunteers availability</button>
+   <i class="fa fa-table"></i>
+
    <br><br>
    <p id="demo"></p>
 
@@ -22,13 +29,16 @@
 
    <h6> Add Frontend Volunteer: </h6>
    <input type="text" name="name" id='frontendName'>
+   <i class="fa fa-user-plus"></i>
+
+
    <button type="button"
               onclick=submitReviewer(document.getElementById('frontendName').value,'N','Y')> Submit </button>
    <br><br>
 
    <h6> Add Backend Volunteer: </h6>
    <input type="text" name="name" id='backendName'>
-
+   <i class="fa fa-user-plus"></i>
 
 
    <button type="button"
@@ -36,19 +46,22 @@
    <br><br>
 
    <button type="button"
-           onclick=loadReviewers()> Click the button to pick up reviewers</button>
+           onclick=loadPickedReviewers()> Click the button to pick up reviewers</button>
+   <i class="fa fa-magic"></i>
    <br><br>
 
    <button type="button"
            onclick=showLastReviewers()> Click the button to show the last picked reviewers</button>
+   <i class="fa fa-table"></i>
    <br><br>
 
    <table id="myLastReviewersTable">
    </table>
 
-   <script>
+ <script>
 
       let volunteers = {};
+      let volunteersToPick = {};
       let pickedVolunteers = {};
       let lastReviewers = {};
       const tableCells = [0, 1, 2, 3];
@@ -84,6 +97,11 @@
          xhttp.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                volunteers = JSON.parse(this.responseText);
+               volunteersToPick = Object.assign({}, volunteers);
+               volunteersToPick = {
+                  users: [...volunteers.users]
+               };
+               console.log(volunteersToPick);
                createTable();
             }
          };
@@ -103,14 +121,12 @@
 
          cell1.innerHTML = "<b>Frontend Volunteers</b>";
          cell2.innerHTML = "<b>Backend Volunteers</b>";
+         cell3.innerHTML = "<b>Remove Volunteer</b>"
          cell4.innerHTML = "<b>Current Availability</b>";
 
          //cell4.innerHTML = "<b>"+volunteers.users[0].name+"</b>";
          volunteers.users.forEach(fillVolunteerTable);
       }
-
-      //fillVolunteerTable - buttons to be fixed, at the moment all of the data is deleted when the table is crated but not when a single button is clicked
-      //button.onclick = removeFrontendReviewer(array[index].name);
 
       function fillVolunteerTable(volunteer, index, array) {
          const volunteerTable = document.getElementById('myTable');
@@ -123,19 +139,30 @@
             addRemoveButton(( ) => removeFrontendReviewer(array[index].name), cellElements[2]);
             //button.onclick = ( ) => removeFrontendReviewer(array[index].name);
             //cellElements[2].appendChild(button);
-
-
          }
 
          if(array[index].backend === 'Y'){
             cellElements[ 1 ].appendChild( document.createTextNode( array[ index ].name ) );
             if(array[index].frontend !== 'Y') { //check if there is a remove button already
                addRemoveButton(( ) => removeBackendReviewer(array[index].name), cellElements[2]);
-
             }
          }
 
-         const toggleFunction = ()=>{console.log('toggle') };
+         let index2 = index;
+         const toggleFunction = () => {
+
+            if((index!==null)&&volunteersToPick.users.includes(array[index])){
+                  index2 = index;
+                  alert(array[index].name + " is made unavailable now");
+                  volunteersToPick.users.splice(index, 1);
+                  index = null;
+               } else {
+                  index = index2;
+                  alert(array[index].name + " is made available now");
+                  volunteersToPick.users.splice(index, 0, array[index]);
+               }
+         };
+
          addAvailabilityButton(toggleFunction, cellElements[3]);
 
          if((array[index].frontend === 'N') && (array[index].backend === 'N')){
@@ -144,24 +171,29 @@
       }
 
       function addRemoveButton( removeFunction, cell ) {
-         const button = document.createElement("BUTTON");
-         button.setAttribute('id', 'deleteButton');
-         const deleteButtonText = document.createTextNode( 'remove' );
-         button.appendChild(deleteButtonText);
-         cell.appendChild(button);
-         button.onclick = removeFunction;
+         const deleteButton = document.createElement( 'i' );
+         deleteButton.setAttribute( 'id', 'deleteButton2' );
+         deleteButton.className = 'fa fa-trash';
+         cell.appendChild(deleteButton);
+         deleteButton.onclick = removeFunction;
       }
+
 
       function addAvailabilityButton( toggleFunction, cell) {
-         const button = document.createElement("BUTTON");
-         button.setAttribute('id', 'availabilityButton');
-         const availabilityButtonText = document.createTextNode( 'toggle' );
-         button.appendChild(availabilityButtonText);
-         cell.appendChild(button);
-         button.onclick = toggleFunction;
+         const toggleButton = document.createElement('label');
+         toggleButton.className = 'toggle';
+         const buttonInput = document.createElement('input');
+         buttonInput.setAttribute('id', 'toggleswitch');
+         buttonInput.setAttribute('type', 'checkbox');
+         toggleButton.appendChild(buttonInput);
+         const newSpan = document.createElement('span');
+         newSpan.className = 'roundbutton';
+         toggleButton.appendChild(newSpan);
+         cell.appendChild(toggleButton);
+         buttonInput.onclick = toggleFunction;
       }
 
-      //funktioniert
+
       function removeFrontendReviewer( name ){
          const http = new XMLHttpRequest();
          let params = '{"users":[{"name":"'+ name +'","backend":"' + 'N' +'","frontend":"' + 'Y' +'"}]}';
@@ -230,26 +262,14 @@
                   location.replace(window.location.href);
                }
             }
-         }
+         };
          http.send(params);
       }
 
 
-      function loadReviewers() {
-         const xhttp = new XMLHttpRequest();
-         xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-               volunteers = JSON.parse(this.responseText);
-               loadPickedReviewers();
-            }
-         };
-         xhttp.open("GET", window.location.href +"api/user", true);
-         xhttp.send();
-      }
-
       function loadPickedReviewers(  ) {
          const http = new XMLHttpRequest();
-         const params = JSON.stringify(volunteers);
+         const params = JSON.stringify(volunteersToPick);
          http.open("POST", window.location.href + "api/propose", true);
          http.setRequestHeader('Content-type', 'application/json');
 
