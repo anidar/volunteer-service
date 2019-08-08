@@ -14,9 +14,9 @@
 
 <i class='fa fa-user-minus'></i>
 
-   <h1 id="id1">Welcome to the Volunteer-Service App!</h1>
+   <h1 id="titleID">Welcome to the Volunteer-Service App!</h1>
 
-   <button type="button"
+   <button type="button" id="loadButton1"
            onclick=loadReviewersWithTable()> Click the button to show the current volunteers availability</button>
    <i class="fa fa-table"></i>
 
@@ -27,30 +27,30 @@
    </table>
    <br><br>
 
-   <h6> Add Frontend Volunteer: </h6>
+   <h6 id="h2"> Add Frontend Volunteer: </h6>
    <input type="text" name="name" id='frontendName'>
    <i class="fa fa-user-plus"></i>
 
 
-   <button type="button"
+   <button type="button" id="submitButtonFront"
               onclick=submitReviewer(document.getElementById('frontendName').value,'N','Y')> Submit </button>
    <br><br>
 
-   <h6> Add Backend Volunteer: </h6>
+   <h6 id="h3"> Add Backend Volunteer: </h6>
    <input type="text" name="name" id='backendName'>
    <i class="fa fa-user-plus"></i>
 
 
-   <button type="button"
+   <button type="button" id="submitButtonBack"
            onclick=submitReviewer(document.getElementById('backendName').value,'Y','N')> Submit </button>
    <br><br>
 
-   <button type="button"
+   <button type="button" id="pickButton"
            onclick=loadPickedReviewers()> Click the button to pick up reviewers</button>
    <i class="fa fa-magic"></i>
    <br><br>
 
-   <button type="button"
+   <button type="button" id="loadButton2"
            onclick=showLastReviewers()> Click the button to show the last picked reviewers</button>
    <i class="fa fa-table"></i>
    <br><br>
@@ -182,6 +182,7 @@
       function addAvailabilityButton( toggleFunction, cell) {
          const toggleButton = document.createElement('label');
          toggleButton.className = 'toggle';
+         toggleButton.setAttribute('id', 'toggleButton');
          const buttonInput = document.createElement('input');
          buttonInput.setAttribute('id', 'toggleswitch');
          buttonInput.setAttribute('type', 'checkbox');

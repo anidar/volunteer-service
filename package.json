@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "start": "node ./index.js",
-    "check-code": "node node_modules/eslint/bin/eslint.js modules app.js"
+    "check-code": "node node_modules/eslint/bin/eslint.js modules app.js",
+    "test": "nightwatch",
+    "e2e": "nightwatch --config nightwatch.conf.js"
   },
   "dependencies": {
     "async": "^3.1.0",
@@ -21,5 +23,10 @@
     "morgan": "~1.9.1",
     "oracledb": "^3.1.2",
     "random": "^2.1.1"
+  },
+  "devDependencies": {
+    "chromedriver": "^74.0.0",
+    "nightwatch": "^1.1.13",
+    "selenium-server": "^3.141.59"
   }
 }
