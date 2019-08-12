@@ -27,23 +27,31 @@
    </table>
    <br><br>
 
-   <h6 id="h2"> Add Frontend Volunteer: </h6>
-   <input type="text" name="name" id='frontendName'>
-   <i class="fa fa-user-plus"></i>
 
 
-   <button type="button" id="submitButtonFront"
-              onclick=submitReviewer(document.getElementById('frontendName').value,'N','Y')> Submit </button>
-   <br><br>
+<h6 id="h7"> Add Volunteer: </h6>
+<input type="text" name="name" id='volunteerName'>
+<i class="fa fa-user-plus"></i>
 
-   <h6 id="h3"> Add Backend Volunteer: </h6>
-   <input type="text" name="name" id='backendName'>
-   <i class="fa fa-user-plus"></i>
+<ul>
+   <li>
+      <label>
+         <input type="checkbox" name="addFrontend" value="frontend" id="f1">
+         Frontend
+      </label>
+   </li>
+   <li>
+      <label>
+         <input type="checkbox" name="addBackend" value="backend" id="b1">
+         Backend
+      </label>
+   </li>
+</ul>
 
+<button type="button" id="submitButtonVolunteer"
+        onclick=submitReviewer(document.getElementById('volunteerName').value)> Submit </button>
+<br><br>
 
-   <button type="button" id="submitButtonBack"
-           onclick=submitReviewer(document.getElementById('backendName').value,'Y','N')> Submit </button>
-   <br><br>
 
    <button type="button" id="pickButton"
            onclick=loadPickedReviewers()> Click the button to pick up reviewers</button>
@@ -115,7 +123,9 @@
          const header = table.createTHead();
          const row = header.insertRow(0);
          const cell1 = row.insertCell(0);
+         cell1.setAttribute( 'id', 'cell1' );
          const cell2 = row.insertCell(1);
+         cell2.setAttribute('id', 'cell2');
          const cell3 = row.insertCell(2);
          const cell4 = row.insertCell(3);
 
@@ -131,10 +141,12 @@
       function fillVolunteerTable(volunteer, index, array) {
          const volunteerTable = document.getElementById('myTable');
          const row = volunteerTable.insertRow(index+1);
+         row.setAttribute('id', 'rowTable');
          const cellElements = tableCells.map( index => row.insertCell( index ) );
 
          if(array[index].frontend === 'Y'){
             cellElements[ 0 ].appendChild( document.createTextNode( array[ index ].name ) );
+            cellElements[0].setAttribute('id','frontEndCell');
             console.log(cellElements[2]);
             addRemoveButton(( ) => removeFrontendReviewer(array[index].name), cellElements[2]);
             //button.onclick = ( ) => removeFrontendReviewer(array[index].name);
@@ -143,6 +155,7 @@
 
          if(array[index].backend === 'Y'){
             cellElements[ 1 ].appendChild( document.createTextNode( array[ index ].name ) );
+            cellElements[1].setAttribute('id','backEndCell');
             if(array[index].frontend !== 'Y') { //check if there is a remove button already
                addRemoveButton(( ) => removeBackendReviewer(array[index].name), cellElements[2]);
             }
@@ -226,13 +239,92 @@
       }
 
 
+      function submitReviewer( name ){
+
+         let frontendValue = '';
+         let backendValue = '';
+
+         if(!name){
+            return;
+         }
+
+         if(document.getElementById('b1').checked === true){
+            backendValue = 'Y';
+         } else {
+            backendValue = 'N';
+         }
+
+         if(document.getElementById('f1').checked === true){
+            frontendValue = 'Y';
+         } else {
+            frontendValue = 'N';
+         }
+
+         const http = new XMLHttpRequest();
+         let params = {
+            "users": [
+               {
+                  name,
+                  "backend": backendValue,
+                  "frontend": frontendValue
+               }
+            ]
+         };
+         params = JSON.stringify(params);
+
+         //'{"users":[{"name":"'+ name +'","backend":"' + backendValue +'","frontend":"' + frontendValue +'"}]}';
+         http.open("POST", window.location.href + "api/user", true);
+         http.setRequestHeader('Content-type', 'application/json');
+
+         http.onreadystatechange = function() {//Call a function when the state changes.
+            if(this.readyState === 4 && this.status === 200) {
+               if((backendValue === 'Y') && (frontendValue === 'N')) {
+                  alert(name + " was added as a Backend Reviewer");
+                  location.replace(window.location.href);
+               } else if ((backendValue === 'N') && (frontendValue === 'Y')){
+                  alert(name + " was added as a Frontend Reviewer");
+                  location.replace(window.location.href);
+               } else {
+                  alert(name + " was added as a Frontend and Backend Reviewer");
+                  location.replace(window.location.href);
+               }
+            }
+         };
+         if((backendValue === 'N') && (frontendValue === 'N')){
+            alert("Please select an option for " + name ) ;
+            location.replace(window.location.href);
+            return;
+         }
+         http.send(params);
+      }
+
+/*
+
+
+<h6 id="h2"> Add Frontend Volunteer: </h6>
+   <input type="text" name="name" id='frontendName'>
+   <i class="fa fa-user-plus"></i>
+
+<button type="button" id="submitButtonFront"
+              onclick=submitReviewer(document.getElementById('frontendName').value,'N','Y')> Submit </button>
+   <br><br>
+
+   <h6 id="h3"> Add Backend Volunteer: </h6>
+   <input type="text" name="name" id='backendName'>
+   <i class="fa fa-user-plus"></i>
+
+
+   <button type="button" id="submitButtonBack"
+           onclick=submitReviewer(document.getElementById('backendName').value,'Y','N')> Submit </button>
+   <br><br>
+
       function submitReviewer( name, backendValue, frontendValue ){
 
          if(!name){
             return;
          }
 
-         let flag = false;
+          let flag = false;
          if(backendValue ==='Y'){
             flag = true;
          }
@@ -266,7 +358,7 @@
          };
          http.send(params);
       }
-
+      */
 
       function loadPickedReviewers(  ) {
          const http = new XMLHttpRequest();
