@@ -44,11 +44,11 @@ h6 {
 
 .fa.fa-toggle-on {
    font-size:30px;
-    color:darkcyan;
+    color:gray;
 }
 .fa.fa-toggle-off {
     font-size:30px;
-    color:darkcyan;
+    color:gray;
 }
 
 .toggle {
@@ -91,7 +91,7 @@ h6 {
 }
 
 input:checked + .roundbutton {
-    background-color: #8B0000;
+    background-color: grey;
 }
 
 input:checked + .roundbutton:before  {

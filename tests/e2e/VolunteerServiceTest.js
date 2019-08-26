@@ -25,8 +25,6 @@ module.exports = { // adapted from: https://git.io/vodU0
          .waitForElementVisible( '#myLastReviewersTable', 1000 )
          .saveScreenshot( path.join( config.SCREENSHOT_PATH, 'BodyVisibility.png' ) )
          .end();
-
-
    },
 
    'Step 2: load tables and close alert'( browser ) {
