@@ -16,7 +16,7 @@
     "env2": "^2.2.2",
     "eslint": "^4.0.0",
     "eslint-config-laxarjs": "^2.0.0",
-    "express": "~4.16.1",
+    "express": "~4.17.3",
     "http": "0.0.0",
     "http-errors": "~1.6.3",
     "log4js": "^4.5.0",
